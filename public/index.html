@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Votify</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div id="login">
+        <center>
+          <h1>Welcome to Votify</h1>
+          <p>Login with Spotify to vote on which songs should be in collaborative playlists!</p>
+          <button onclick="location.href='/login'" class="playLink">Log in with Spotify</button>
+        </center>
+      </div>
+      <div id="loggedin">
+        <div class="top">
+          <h1>VOTIFY</h1>
+        </div>
+        <div id="user-profile">
+        </div>
+        <div id="home-page">
+        </div>
+      </div>
+    </div>
+
+    <script id="user-profile-template" type="text/x-handlebars-template">
+      <div class="main">
+        <center>
+          <h1>Welcome {{id}}!</h1>
+          <h4>Click on a playlist to start voting on songs!</h4>
+        </center>
+      </div>
+    </script>
+
+    <script id="home-page-template" type="text/x-handlebars-template">
+
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script>
+      (function() {
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
+        function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+          return hashParams;
+        }
+
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+        var homePageSource = document.getElementById('home-page-template').innerHTML,
+            homePageTemplate = Handlebars.compile(homePageSource),
+            homePagePlaceholder = document.getElementById('home-page');
+
+        var params = getHashParams();
+
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+        if (error) {
+          alert('There was an error during the authentication');
+        } else {
+          if (access_token) {
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(profileResponse) {
+                  userProfilePlaceholder.innerHTML = userProfileTemplate(profileResponse);
+
+                  createSideBar();
+
+                  function createSideBar() {
+                    $.ajax({
+                      url: 'https://api.spotify.com/v1/me/playlists',
+                      headers: {
+                        'Authorization': 'Bearer ' + access_token
+                      },
+                      success: function(playlistResponse) {
+                        let listPlaylists = "";
+                        let songName = "";
+                        let i;
+
+                        listPlaylists += "<div class=\"left\">";
+                        listPlaylists += "<h1>Playlists:</h1>";
+
+                        for(i=0; i < playlistResponse.total; i++) {
+                          if(playlistResponse.items[i].collaborative) {
+                            playlistName = playlistResponse.items[i].name;
+                            playlistId = playlistResponse.items[i].id;
+                            playlistOwner = playlistResponse.items[i].owner.id;;
+                            listPlaylists += "<button class=\"link\" id=\"" + playlistId + "\" value=\"" + playlistOwner + "\">" + playlistName + "</button></br>"
+                          }
+                        }
+
+                        listPlaylists += "</div>";
+                        homePagePlaceholder.innerHTML = listPlaylists;
+
+                        $("button").click(function() {
+                          let listId = this.id;
+                          let listOwner = this.value;
+
+                          $.ajax({
+                            url: 'https://api.spotify.com/v1/users/' + listOwner + '/playlists/' + listId,
+                            headers: {
+                              'Authorization': 'Bearer ' + access_token
+                            },
+                            success: function(response) {
+                              let allSongs = "";
+                              let songArtist = "";
+                              let j;
+                              let limit = 100;
+
+                              allSongs += "<div class=\"playlistName\">";
+                              allSongs += "<center class=\"playlistTitle\">" + response.name + "</center>";
+                              allSongs += "<center><input class=\"playLink\" type=\"button\" onclick=\"window.open('" + response.external_urls.spotify +
+                                            "')\" value=\"Open in Spotify\" /></center> </br></br>";
+                              allSongs += "</div>";
+                              allSongs += "<div class=\"main\" id=\"style-1\">";
+                              allSongs += "<table><tr><th>Song</th><th>Artist</th></tr>";
+
+                              getSongs(listId, 0, 0);
+
+                              function getSongs(id, offset, readSongs) {
+                                $.ajax({
+                                  url: 'https://api.spotify.com/v1/users/' + response.owner.id + '/playlists/' + id + '/tracks?offset=' + offset,
+                                  headers: {
+                                    'Authorization': 'Bearer ' + access_token
+                                  },
+                                  success: function(songResponse) {
+                                    if((songResponse.total-readSongs) < limit){
+                                      limit = songResponse.total-readSongs;
+                                    }
+
+                                    for(j=0; j < limit; j++) {
+                                      songName = songResponse.items[j].track.name;
+                                      songArtist = songResponse.items[j].track.artists[0].name;
+                                      allSongs += "<tr><td>" + songName + "</td> <td>" + songArtist + "</td></tr>"
+                                      if(j === 99){
+                                        getSongs(id, readSongs+100, readSongs+100);
+                                      }
+                                    }
+                                    readSongs += j;
+
+                                    //console.log("SONGS READ: " + readSongs);
+
+                                    if(readSongs === songResponse.total) {
+                                      allSongs += "</table></div>";
+                                      userProfilePlaceholder.innerHTML = allSongs;
+                                    }
+                                  }
+                                });
+                              }
+                            }
+                          });
+                        });
+                      }
+                  });
+                }
+                $('#login').hide();
+                $('#loggedin').show();
+              }
+            });
+          } else {
+              // render initial screen
+              $('#login').show();
+              $('#loggedin').hide();
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>

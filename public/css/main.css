@@ -1,0 +1,90 @@
+#login, #loggedin {
+  display: none;
+}
+
+body {
+  background-color: #101010;
+  color: #ffffff;
+}
+
+button.link {
+  background:none;
+  border:none;
+}
+
+table {
+  border: 1px solid white;
+  width: 100%;
+  padding-left: 15px;
+}
+
+th, td {
+  border: 1px solid white;
+  height: 50px;
+}
+
+.playLink {
+  background-color: #71f948;
+  color: #000000;
+}
+
+.playlistTitle {
+  font-size: 48px;
+}
+
+.top {
+  position:absolute;
+  left:0; right:0;
+  height: 92px;
+  background-color: #101010;
+  color: #ffffff;
+  border-bottom: solid #ffffff;
+  overflow: auto;
+}
+
+.left {
+  position:absolute;
+  left:0; top:92px; bottom: 0;
+  width: 178px;
+  background-color: #101010;
+  color: #ffffff;
+  border-right: solid #ffffff;
+}
+
+.main {
+  position: absolute;
+  left:178px; top:200px; right:0; bottom:0;
+  background-color: #101010;
+  color: #ffffff;
+  overflow: auto;
+}
+
+.playlistName {
+  position: absolute;
+  left:178px; top:92px; right:0;
+  background-color: #101010;
+  color: #ffffff;
+}
+
+/*
+ *  STYLE 1 for scrollbar
+ */
+#style-1::-webkit-scrollbar-track
+{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  border-radius: 10px;
+  background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar
+{
+  width: 12px;
+  background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar-thumb
+{
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: #555;
+}
