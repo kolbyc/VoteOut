@@ -27,7 +27,7 @@
     </div>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <div class="main">
+      <div class="welcomeScreen">
         <center>
           <h1>Welcome {{id}}!</h1>
           <h4>Click on a playlist to start voting on songs!</h4>
@@ -134,7 +134,7 @@
                                             "')\" value=\"Open in Spotify\" /></center> </br></br>";
                               allSongs += "</div>";
                               allSongs += "<div class=\"main\" id=\"style-1\">";
-                              allSongs += "<table><tr><th>Song</th><th>Artist</th></tr>";
+                              allSongs += "<table>";
 
                               getSongs(listId, 0, 0);
 
@@ -152,7 +152,9 @@
                                     for(j=0; j < limit; j++) {
                                       songName = songResponse.items[j].track.name;
                                       songArtist = songResponse.items[j].track.artists[0].name;
-                                      allSongs += "<tr><td>" + songName + "</td> <td>" + songArtist + "</td></tr>"
+                                      allSongs += "<tr><td class=\"upvote\">&nbsp;&nbsp;0</td> <td class=\"downvote\">0&nbsp;&nbsp;</td><td><h4>" + songName + "</h4><h5>" + songArtist + "</h5></td>";
+                                      allSongs += "<td><button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-up\"></span></button>&nbsp;";
+                                      allSongs += "<button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-down\"></span></button></td></tr>";
                                       if(j === 99){
                                         getSongs(id, readSongs+100, readSongs+100);
                                       }
