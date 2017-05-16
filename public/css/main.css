@@ -13,14 +13,20 @@ button.link {
 }
 
 table {
-  border: 1px solid white;
   width: 100%;
   padding-left: 15px;
 }
 
 th, td {
-  border: 1px solid white;
   height: 50px;
+}
+
+tr:nth-child(even) {
+  background: #101010;
+}
+
+tr:nth-child(odd) {
+  background: #191919;
 }
 
 .playLink {
@@ -32,37 +38,56 @@ th, td {
   font-size: 48px;
 }
 
+.upvote {
+  color: green;
+}
+
+.downvote {
+  color: red;
+}
+
 .top {
   position:absolute;
-  left:0; right:0;
-  height: 92px;
+  left:0; right:178px;
+  width: 178px;
+  height: 100px;
+  border-right: thin solid #000000;
+  border-bottom: thin solid #000000;
   background-color: #101010;
   color: #ffffff;
-  border-bottom: solid #ffffff;
   overflow: auto;
 }
 
 .left {
   position:absolute;
-  left:0; top:92px; bottom: 0;
+  left:0; top:100px; bottom: 0;
   width: 178px;
-  background-color: #101010;
+  border-right: thin solid #000000;
+  background-color: #191919;
   color: #ffffff;
-  border-right: solid #ffffff;
+  overflow: auto;
 }
 
 .main {
   position: absolute;
-  left:178px; top:200px; right:0; bottom:0;
-  background-color: #101010;
+  left:178px; top:100px; right:0; bottom:0;
+  border-top: thin solid #000000;
+  background-color: #222326;
   color: #ffffff;
   overflow: auto;
 }
 
 .playlistName {
   position: absolute;
-  left:178px; top:92px; right:0;
-  background-color: #101010;
+  left:178px; right:0;
+  background-color: #191919;
+  color: #ffffff;
+}
+
+.welcomeScreen {
+  position: absolute;
+  left:178px; top:0; right:0; bottom:0;
+  background-color: #191919;
   color: #ffffff;
 }
 
