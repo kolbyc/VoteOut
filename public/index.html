@@ -116,6 +116,10 @@
                         $("button").click(function() {
                           let listId = this.id;
                           let listOwner = this.value;
+                          let loader = "";
+
+                          loader += "<div id=\"loader\" class=\"loader\"></div>";
+                          userProfilePlaceholder.innerHTML = loader;
 
                           $.ajax({
                             url: 'https://api.spotify.com/v1/users/' + listOwner + '/playlists/' + listId,
@@ -166,6 +170,7 @@
                                     if(readSongs === songResponse.total) {
                                       allSongs += "</table></div>";
                                       userProfilePlaceholder.innerHTML = allSongs;
+                                      document.getElementById("loader").style.display = "none";
                                     }
                                   }
                                 });
