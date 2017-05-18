@@ -19,14 +19,14 @@
         <div class="top">
           <h1>VoteOut</h1>
         </div>
-        <div id="user-profile">
-        </div>
-        <div id="home-page">
-        </div>
+        <div id="welcome"></div>
+        <div id="sidebar"></div>
+        <div id="playlistTitle"></div>
+        <div id="songs"></div>
       </div>
     </div>
 
-    <script id="user-profile-template" type="text/x-handlebars-template">
+    <script id="welcome-template" type="text/x-handlebars-template">
       <div class="welcomeScreen">
         <center>
           <h1>Welcome {{id}}!</h1>
@@ -35,162 +35,53 @@
       </div>
     </script>
 
-    <script id="home-page-template" type="text/x-handlebars-template">
+    <script id="sidebar-template" type="text/x-handlebars-template">
+      <div class="left">
+        <h1>Playlists:</h1>
+        {{#each items}}
+          {{#if this.collaborative}}
+            <button class="link" id={{id}} value={{owner.id}}>{{name}}</button></br>
+          {{/if}}
+        {{/each}}
+      </div>
+    </script>
 
+    <script id="playlist-title-template" type="text/x-handlebars-template">
+      <div class="playlistName">
+        <center class="playlistTitle">{{name}}</center>
+        <center><input class="playLink" type="button" onclick="window.open('{{external_urls.spotify}}')" value="Open in Spotify"/></center></br></br>
+      </div>
+    </script>
+
+    <script id="songs-template" type="text/x-handlebars-template">
+      <div class="main" id="style-1">
+        <table>
+          {{#each songs}}
+            <tr>
+              <td class="upvote">
+                &nbsp;&nbsp;0
+              </td>
+              <td class="downvote">
+                0&nbsp;&nbsp;
+              </td>
+              <td>
+                <h4>{{name}}</h4><h5>{{artist}}</h5>
+              </td>
+              <td>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>&nbsp;
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+      </div>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script>
-      (function() {
-
-        /**
-         * Obtains parameters from the hash of the URL
-         * @return Object
-         */
-        function getHashParams() {
-          var hashParams = {};
-          var e, r = /([^&;=]+)=?([^&;]*)/g,
-              q = window.location.hash.substring(1);
-          while ( e = r.exec(q)) {
-             hashParams[e[1]] = decodeURIComponent(e[2]);
-          }
-          return hashParams;
-        }
-
-        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-            userProfileTemplate = Handlebars.compile(userProfileSource),
-            userProfilePlaceholder = document.getElementById('user-profile');
-
-        var homePageSource = document.getElementById('home-page-template').innerHTML,
-            homePageTemplate = Handlebars.compile(homePageSource),
-            homePagePlaceholder = document.getElementById('home-page');
-
-        var params = getHashParams();
-
-        var access_token = params.access_token,
-            refresh_token = params.refresh_token,
-            error = params.error;
-
-        if (error) {
-          alert('There was an error during the authentication');
-        } else {
-          if (access_token) {
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(profileResponse) {
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(profileResponse);
-
-                  createSideBar();
-
-                  function createSideBar() {
-                    $.ajax({
-                      url: 'https://api.spotify.com/v1/me/playlists',
-                      headers: {
-                        'Authorization': 'Bearer ' + access_token
-                      },
-                      success: function(playlistResponse) {
-                        let listPlaylists = "";
-                        let songName = "";
-                        let i;
-
-                        listPlaylists += "<div class=\"left\">";
-                        listPlaylists += "<h1>Playlists:</h1>";
-
-                        for(i=0; i < playlistResponse.total; i++) {
-                          if(playlistResponse.items[i].collaborative) {
-                            playlistName = playlistResponse.items[i].name;
-                            playlistId = playlistResponse.items[i].id;
-                            playlistOwner = playlistResponse.items[i].owner.id;;
-                            listPlaylists += "<button class=\"link\" id=\"" + playlistId + "\" value=\"" + playlistOwner + "\">" + playlistName + "</button></br>"
-                          }
-                        }
-
-                        listPlaylists += "</div>";
-                        homePagePlaceholder.innerHTML = listPlaylists;
-
-                        $("button").click(function() {
-                          let listId = this.id;
-                          let listOwner = this.value;
-                          let loader = "";
-
-                          loader += "<div id=\"loader\" class=\"loader\"></div>";
-                          userProfilePlaceholder.innerHTML = loader;
-
-                          $.ajax({
-                            url: 'https://api.spotify.com/v1/users/' + listOwner + '/playlists/' + listId,
-                            headers: {
-                              'Authorization': 'Bearer ' + access_token
-                            },
-                            success: function(response) {
-                              let allSongs = "";
-                              let songArtist = "";
-                              let j;
-                              let limit = 100;
-
-                              allSongs += "<div class=\"playlistName\">";
-                              allSongs += "<center class=\"playlistTitle\">" + response.name + "</center>";
-                              allSongs += "<center><input class=\"playLink\" type=\"button\" onclick=\"window.open('" + response.external_urls.spotify +
-                                            "')\" value=\"Open in Spotify\" /></center> </br></br>";
-                              allSongs += "</div>";
-                              allSongs += "<div class=\"main\" id=\"style-1\">";
-                              allSongs += "<table>";
-
-                              getSongs(listId, 0, 0);
-
-                              function getSongs(id, offset, readSongs) {
-                                $.ajax({
-                                  url: 'https://api.spotify.com/v1/users/' + response.owner.id + '/playlists/' + id + '/tracks?offset=' + offset,
-                                  headers: {
-                                    'Authorization': 'Bearer ' + access_token
-                                  },
-                                  success: function(songResponse) {
-                                    if((songResponse.total-readSongs) < limit){
-                                      limit = songResponse.total-readSongs;
-                                    }
-
-                                    for(j=0; j < limit; j++) {
-                                      songName = songResponse.items[j].track.name;
-                                      songArtist = songResponse.items[j].track.artists[0].name;
-                                      allSongs += "<tr><td class=\"upvote\">&nbsp;&nbsp;0</td> <td class=\"downvote\">0&nbsp;&nbsp;</td><td><h4>" + songName + "</h4><h5>" + songArtist + "</h5></td>";
-                                      allSongs += "<td><button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-up\"></span></button>&nbsp;";
-                                      allSongs += "<button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-down\"></span></button></td></tr>";
-                                      if(j === 99){
-                                        getSongs(id, readSongs+100, readSongs+100);
-                                      }
-                                    }
-                                    readSongs += j;
-
-                                    //console.log("SONGS READ: " + readSongs);
-
-                                    if(readSongs === songResponse.total) {
-                                      allSongs += "</table></div>";
-                                      userProfilePlaceholder.innerHTML = allSongs;
-                                    }
-                                  }
-                                });
-                              }
-                            }
-                          });
-                        });
-                      }
-                  });
-                }
-                $('#login').hide();
-                $('#loggedin').show();
-              }
-            });
-          } else {
-              // render initial screen
-              $('#login').show();
-              $('#loggedin').hide();
-          }
-        }
-      })();
-    </script>
+    <script src="/js/globals.js"></script>
+    <script src="/js/loadSongs.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/main.js"></script>
   </body>
 </html>
