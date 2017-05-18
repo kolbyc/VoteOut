@@ -24,7 +24,7 @@ function createSideBar(access_token) {
           },
           success: function(response) {
 
-            songsPlaceholder.innerHTML = songsTemplate(response);
+            playlistTitlePlaceholder.innerHTML = playlistTitleTemplate(response);
 
             loadSongs(access_token, listId, response);
           }
