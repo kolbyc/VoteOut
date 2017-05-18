@@ -46,32 +46,30 @@
     </script>
 
     <script id="songs-template" type="text/x-handlebars-template">
-      <div class="welcomeScreen">
-        <div class="playlistName">
-          <center class="playlistTitle">{{name}}</center>
-          <center><input class="playLink" type="button" onclick="window.open('{{external_urls.spotify}}')" value="Open in Spotify"/></center></br></br>
-          <div class="main" id="style-1">
-            <table>
-              {{#each tracks.items}}
-                <tr>
-                  <td class="upvote">
-                    &nbsp;&nbsp;0
-                  </td>
-                  <td class="downvote">
-                    0&nbsp;&nbsp;
-                  </td>
-                  <td>
-                    <h4>{{track.name}}</h4><h5>{{track.artists}}</h5>
-                  </td>
-                  <td>
-                      <button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-up\"></span></button>&nbsp;
-                      <button type=\"button\" class=\"btn btn-default\"><span class=\"glyphicon glyphicon-thumbs-down\"></span></button>
-                  </td>
-                </tr>
-              {{/each}}
-            </table>
-          </div>
-        </div>
+      <div class="playlistName">
+        <center class="playlistTitle">{{name}}</center>
+        <center><input class="playLink" type="button" onclick="window.open('{{external_urls.spotify}}')" value="Open in Spotify"/></center></br></br>
+      </div>
+      <div class="main" id="style-1">
+        <table>
+          {{#each tracks.items}}
+            <tr>
+              <td class="upvote">
+                &nbsp;&nbsp;0
+              </td>
+              <td class="downvote">
+                0&nbsp;&nbsp;
+              </td>
+              <td>
+                <h4>{{track.name}}</h4><h5>{{track.artists}}</h5>
+              </td>
+              <td>
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>&nbsp;
+                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
       </div>
     </script>
 
