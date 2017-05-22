@@ -11,10 +11,22 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var mongo = require('mongodb');
+var fs = require('fs');
+var hbs = require('hbs');
 
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/votedb";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  console.log("Database created!");
+  db.close();
+});
 
 /**
  * Generates a random string containing numbers and letters
@@ -37,6 +49,14 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
+
+//app.engine('hbs', expressHbs({extname:'handlebars', defaultLayout:'main.handlebars'}));
+app.set('view engine', 'hbs');
+app.set('views', __dirname + '/views/layouts');
+
+hbs.registerPartials(__dirname + '/views/partials');
+
+hbs.registerPartial('titlePartial', fs.readFileSync(__dirname + '/views/partials/titlePartial.handlebars', 'utf8'));
 
 app.get('/login', function(req, res) {
 
@@ -114,6 +134,7 @@ app.get('/callback', function(req, res) {
           }));
       }
     });
+    res.render('main.handlebars');
   }
 });
 
@@ -139,6 +160,11 @@ app.get('/refresh_token', function(req, res) {
       });
     }
   });
+});
+
+app.get('/:playlist', function(req, res) {
+  res.sendfile('public/playlists.html');
+  //res.send(req.params);
 });
 
 console.log('Listening on 8888');

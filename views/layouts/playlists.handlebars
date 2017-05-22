@@ -1,0 +1,25 @@
+<div class="playlistName">
+  {{> titlePartial name='{{name}}'}}
+</div>
+
+<div class="main" id="style-1">
+<table>
+  {{#each songs}}
+    <tr>
+      <td class="upvote">
+        &nbsp;&nbsp;0
+      </td>
+      <td class="downvote">
+        0&nbsp;&nbsp;
+      </td>
+      <td>
+        <h4>{{name}}</h4><h5>{{artist}}</h5>
+      </td>
+      <td>
+          <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>&nbsp;
+          <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+      </td>
+    </tr>
+  {{/each}}
+</table>
+</div>
