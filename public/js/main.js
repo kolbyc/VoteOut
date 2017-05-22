@@ -11,6 +11,9 @@
     while ( e = r.exec(q)) {
        hashParams[e[1]] = decodeURIComponent(e[2]);
     }
+
+    location.hash = '';
+
     return hashParams;
   }
 
@@ -33,7 +36,7 @@
           success: function(profileResponse) {
             welcomePlaceholder.innerHTML = welcomeTemplate(profileResponse);
 
-            createSideBar(access_token);
+            createSideBar(access_token, profileResponse.id);
 
           $('#login').hide();
           $('#loggedin').show();

@@ -1,4 +1,4 @@
-function loadSongs(access_token, listId, response) {
+function loadSongs(access_token, listId, response, profileId) {
 
   let allSongs = "{ \"songs\" : [ ";
   let songArtist = "";
@@ -20,31 +20,62 @@ function loadSongs(access_token, listId, response) {
         }
 
         for(j=0; j < limit; j++) {
-          songName = songResponse.items[j].track.name;
-          songArtist = songResponse.items[j].track.artists[0].name;
+          (function(j) {
+            $.ajax({
+                type: "GET",
+                url: 'http://localhost:8888/api/' + id,
+                data: {
+                  playlistId: id,
+                  songId: songResponse.items[j].track.id
+                },
+                success: function(response) {
+                  //console.log(response);
+                  //console.log(j);
+                  songName = songResponse.items[j].track.name;
+                  songArtist = songResponse.items[j].track.artists[0].name;
 
-          readSongs++;
+                  readSongs++;
 
-          if(readSongs === songResponse.total) {
+                  if(readSongs === songResponse.total) {
 
-            if(songName.includes("\"")) {
-              songName = songName.replace(/"/g, "\\\"");
-            }
+                    if(songName.includes("\"")) {
+                      songName = songName.replace(/"/g, "\\\"");
+                    }
 
-            allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\"} ]} ";
-            let songs = JSON.parse(allSongs);
-            songsPlaceholder.innerHTML = songsTemplate(songs);
-          }
-          else {
-            if(songName.includes("\"")) {
-              songName = songName.replace(/"/g, "\\\"");
-            }
-            allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\"}, ";
-          }
+                    allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\", \"ups\": \"" + response.ups
+                                    + "\", \"downs\": \"" + response.downs + "\", \"id\": \"" + response._id + "\"} ]} ";
+                    let songs = JSON.parse(allSongs);
 
-          if(j === 99){
-            getSongs(id, readSongs+100, readSongs+100);
-          }
+                    songsPlaceholder.innerHTML = songsTemplate(songs);
+                    $("button").click(function() {
+                      $.ajax({
+                          type: "POST",
+                          url: 'http://localhost:8888/api/' + id,
+                          data: {
+                            playlistId: id,
+                            songId: songResponse.items[j].track.id,
+                            userId: profileId
+                          },
+                          success: function(postResponse) {
+                            console.log(postResponse);
+                          }
+                      });
+                    });
+                  }
+                  else {
+                    if(songName.includes("\"")) {
+                      songName = songName.replace(/"/g, "\\\"");
+                    }
+                    allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\", \"ups\": \"" + response.ups
+                                    + "\", \"downs\": \"" + response.downs + "\", \"id\": \"" + response._id + "\"}, ";
+                  }
+
+                  if(j === 99){
+                    getSongs(id, readSongs, readSongs);
+                  }
+              }
+            });
+          })(j);
         }
       }
     });

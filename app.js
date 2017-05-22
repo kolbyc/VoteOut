@@ -11,10 +11,20 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+//var bodyParser = require('body-parser');
 
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/votedb";
+
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  console.log("Database created!");
+  db.close();
+});
 
 /**
  * Generates a random string containing numbers and letters
@@ -34,6 +44,13 @@ var generateRandomString = function(length) {
 var stateKey = 'spotify_auth_state';
 
 var app = express();
+//app.use(express.bodyParser());
+
+// parse application/x-www-form-urlencoded
+//app.use(bodyParser.urlencoded({ extended: true }))
+
+// parse application/json
+//app.use(bodyParser.json())
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
@@ -139,6 +156,32 @@ app.get('/refresh_token', function(req, res) {
       });
     }
   });
+});
+
+app.get('/api/:playlistName', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId}).toArray(function(err, result) {
+      if (err) throw err;
+        if(result[0] === undefined){
+          db.collection("playlists").insertOne({playlistId: req.query.playlistId, songId: req.query.songId, users: {}, ups: 0, downs: 0}, function(err, result) {
+          if (err) throw err;
+            db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId}).toArray(function(err, result) {
+              if (err) throw err;
+                res.send(result[0]);
+            });
+          });
+        }
+        else {
+          res.send(result[0]);
+        }
+    });
+    db.close();
+  });
+});
+
+app.post('/api/:playlistName', function(req, res) {
+  res.send("POST");
 });
 
 console.log('Listening on 8888');

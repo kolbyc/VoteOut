@@ -1,4 +1,4 @@
-function createSideBar(access_token) {
+function createSideBar(access_token, profileId) {
 
   $.ajax({
     url: 'https://api.spotify.com/v1/me/playlists',
@@ -26,7 +26,7 @@ function createSideBar(access_token) {
 
             playlistTitlePlaceholder.innerHTML = playlistTitleTemplate(response);
 
-            loadSongs(access_token, listId, response);
+            loadSongs(access_token, listId, response, profileId);
           }
         });
       });

@@ -59,17 +59,17 @@
           {{#each songs}}
             <tr>
               <td class="upvote">
-                &nbsp;&nbsp;0
+                &nbsp;&nbsp;{{ups}}
               </td>
               <td class="downvote">
-                0&nbsp;&nbsp;
+                {{downs}}&nbsp;&nbsp;
               </td>
               <td>
                 <h4>{{name}}</h4><h5>{{artist}}</h5>
               </td>
               <td>
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>&nbsp;
-                  <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span></button>
+                  <button type="button" id={{id}} value="1" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>&nbsp;
+                  <button type="button" id={{id}} value="-1" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-down"></span></button>
               </td>
             </tr>
           {{/each}}
