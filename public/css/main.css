@@ -42,8 +42,20 @@ tr:nth-child(odd) {
   color: green;
 }
 
+.upvoteEnabled {
+  background-color: green;
+  color: white;
+  pointer-events: none;
+}
+
 .downvote {
   color: red;
+}
+
+.downvoteEnabled {
+  background-color: red;
+  color: white;
+  pointer-events: none;
 }
 
 .top {

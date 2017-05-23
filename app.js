@@ -161,27 +161,40 @@ app.get('/refresh_token', function(req, res) {
 app.get('/api/:playlistName', function(req, res) {
 
   MongoClient.connect(url, function(err, db) {
-    db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId}).toArray(function(err, result) {
+    //console.log(req.query.userId);
+    db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId, "users.id": req.query.userId}).toArray(function(err, result1) {
       if (err) throw err;
-        if(result[0] === undefined){
-          db.collection("playlists").insertOne({playlistId: req.query.playlistId, songId: req.query.songId, users: {}, ups: 0, downs: 0}, function(err, result) {
+        if(result1[0] === undefined){
+          //console.log("HERE");
+          db.collection("playlists").insertOne({playlistId: req.query.playlistId, songId: req.query.songId, users: [{id: req.query.userId, vote: 0}], ups: 0, downs: 0}, function(err, result2) {
           if (err) throw err;
-            db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId}).toArray(function(err, result) {
+            db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId, "users.id": req.query.userId}).toArray(function(err, result3) {
               if (err) throw err;
-                res.send(result[0]);
+                res.send(result3[0]);
             });
           });
         }
         else {
-          res.send(result[0]);
+          //console.log(result1[0]);
+          res.send(result1[0]);
         }
     });
-    db.close();
+    //db.close();
   });
 });
 
 app.post('/api/:playlistName', function(req, res) {
-  res.send("POST");
+  MongoClient.connect(url, function(err, db) {
+    db.collection("playlists").find({"_id" : req.query.mongoId}).toArray(function(err, result1) {
+      console.log(result1);
+    });
+    db.collection("playlists").update({"_id" : req.query.mongoId }, {$set: {"users.vote": req.query.vote}}, function(err, result1) {
+      if (err) throw err;
+      console.log(result1.result.nModified + " record updated");
+      //db.close(););
+      res.send("POST");
+    });
+  });
 });
 
 console.log('Listening on 8888');
