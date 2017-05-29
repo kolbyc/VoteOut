@@ -8,7 +8,8 @@ function loadSongs(access_token, listId, response, profileId) {
   getSongs(listId, 0, 0);
 
   function getSongs(id, offset, readSongs) {
-    let buttonClass = '';
+    let upClass = '';
+    let downClass = '';
 
     $.ajax({
       url: 'https://api.spotify.com/v1/users/' + response.owner.id + '/playlists/' + id + '/tracks?offset=' + offset,
@@ -32,15 +33,17 @@ function loadSongs(access_token, listId, response, profileId) {
                   userId: profileId
                 },
                 success: function(response) {
-                  console.log(response.users.vote);
-                  if(response.users.vote === 1) {
-                    buttonClass = "upvoteEnabled";
+                  console.log(response.users[0].vote);
+                  if(response.users[0].vote == 1) {
+                    console.log("TRUE");
+                    upClass = "upvoteEnabled";
                   }
-                  else if(response.users.vote === -1) {
-                    buttonClass = "downvoteEnabled"
+                  else if(response.users[0].vote == -1) {
+                    downClass = "downvoteEnabled"
                   }
                   else {
-                    buttonClass = "";
+                    upClass = "";
+                    downClass = "";
                   }
                   //console.log(j);
                   songName = songResponse.items[j].track.name;
@@ -56,7 +59,7 @@ function loadSongs(access_token, listId, response, profileId) {
 
                     allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\", \"ups\": \"" + response.ups
                                     + "\", \"downs\": \"" + response.downs + "\", \"id\": \"" + response._id
-                                    + "\", \"class\": \"" + buttonClass + "\"} ]} ";
+                                    + "\", \"upClass\": \"" + upClass + "\", \"downClass\": \"" + downClass + "\"} ]} ";
                     let songs = JSON.parse(allSongs);
 
                     songsPlaceholder.innerHTML = songsTemplate(songs);
@@ -64,6 +67,7 @@ function loadSongs(access_token, listId, response, profileId) {
                       $(this).blur();
                       let mongoId = this.id.slice(0, -1);
                       let vote;
+                      console.log("THIS ID: " + this.id);
                       console.log(mongoId);
                       //console.log(this.id[this.id.length-1]);
                       if(this.id[this.id.length-1] === 'u') {
@@ -89,9 +93,10 @@ function loadSongs(access_token, listId, response, profileId) {
                       }
                       $.ajax({
                           type: "POST",
-                          url: 'http://localhost:8888/api/' + this.id,
+                          url: 'http://localhost:8888/api/' + id,
+                          dataType: "json",
                           data: {
-                            playlistId: this.id,
+                            playlistId: id,
                             songId: songResponse.items[j].track.id,
                             userId: profileId,
                             mongoId: mongoId,
@@ -109,7 +114,11 @@ function loadSongs(access_token, listId, response, profileId) {
                     }
                     allSongs += "{ \"name\": \"" + songName + "\", \"artist\": \"" + songArtist + "\", \"ups\": \"" + response.ups
                                     + "\", \"downs\": \"" + response.downs + "\", \"id\": \"" + response._id
-                                    + "\", \"class\": \"" + buttonClass + "\"}, ";
+                                    + "\", \"upClass\": \"" + upClass + "\", \"downClass\": \"" + downClass + "\"}, ";
+                    if(j === 0) {
+                      console.log("response: "+ response._id);
+                      console.log("Song: "+ response.songId);
+                    }
                   }
 
                   if(j === 99){

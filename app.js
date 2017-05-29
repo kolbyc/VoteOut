@@ -11,7 +11,7 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-//var bodyParser = require('body-parser');
+var bodyParser = require('body-parser');
 
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
@@ -45,7 +45,8 @@ var stateKey = 'spotify_auth_state';
 
 var app = express();
 //app.use(express.bodyParser());
-
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded());
 // parse application/x-www-form-urlencoded
 //app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -162,6 +163,9 @@ app.get('/api/:playlistName', function(req, res) {
 
   MongoClient.connect(url, function(err, db) {
     //console.log(req.query.userId);
+    db.collection("playlists").find({}).toArray(function(err, result1) {
+      //console.log(result1[0]);
+    });
     db.collection("playlists").find({playlistId: req.query.playlistId, songId: req.query.songId, "users.id": req.query.userId}).toArray(function(err, result1) {
       if (err) throw err;
         if(result1[0] === undefined){
@@ -185,10 +189,17 @@ app.get('/api/:playlistName', function(req, res) {
 
 app.post('/api/:playlistName', function(req, res) {
   MongoClient.connect(url, function(err, db) {
-    db.collection("playlists").find({"_id" : req.query.mongoId}).toArray(function(err, result1) {
+    db.collection("playlists").find({}).toArray(function(err, result1) {
+      //res.send(result1);
+    });
+    let id = require('mongodb').ObjectID(req.body.mongoId);
+    console.log("ID: "+ id);
+    db.collection("playlists").find({"_id" : id}).toArray(function(err, result1) {
       console.log(result1);
     });
-    db.collection("playlists").update({"_id" : req.query.mongoId }, {$set: {"users.vote": req.query.vote}}, function(err, result1) {
+    //let userVote = db.collection("playlists").find({playlistId: req.body.playlistId, songId: req.body.songId, "users.id": req.body.userId});
+    //console.log(userVote._id);
+    db.collection("playlists").update({"_id" : id, "users.id": req.body.userId}, {$set: {"users.$.vote": req.body.vote}}, function(err, result1) {
       if (err) throw err;
       console.log(result1.result.nModified + " record updated");
       //db.close(););
